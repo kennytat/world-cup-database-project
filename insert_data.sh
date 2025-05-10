@@ -9,20 +9,37 @@ psql -U freecodecamp -d worldcup <<EOF
 DROP TABLE IF EXISTS games;
 DROP TABLE IF EXISTS teams;
 
-CREATE TABLE teams (
-  team_id SERIAL PRIMARY KEY,
-  name VARCHAR NOT NULL UNIQUE
+CREATE TABLE games (
+    game_id SERIAL PRIMARY KEY,
+    year int NOT NULL,
+    round character varying(40) NOT NULL,
+    winner_id int NOT NULL,
+    opponent_id int NOT NULL,
+    winner_goals int NOT NULL,
+    opponent_goals int NOT NULL
 );
 
-CREATE TABLE games (
-  game_id SERIAL PRIMARY KEY,
-  year INT NOT NULL,
-  round VARCHAR NOT NULL,
-  winner_id INT NOT NULL REFERENCES teams(team_id),
-  opponent_id INT NOT NULL REFERENCES teams(team_id),
-  winner_goals INT NOT NULL,
-  opponent_goals INT NOT NULL
+CREATE TABLE teams (
+    team_id SERIAL PRIMARY KEY,
+    name VARCHAR NOT NULL UNIQUE
 );
+
+ALTER TABLE teams
+    ADD UNIQUE (name);
+
+ALTER TABLE games
+    ADD PRIMARY KEY (game_id);
+
+ALTER TABLE teams
+    ADD PRIMARY KEY (team_id);
+
+ALTER TABLE games
+    ADD FOREIGN KEY (opponent_id) 
+	REFERENCES teams(team_id);
+
+ALTER TABLE games
+    ADD FOREIGN KEY (winner_id) 
+	REFERENCES teams(team_id);
 EOF
 
 if [[ $1 == "test" ]]
