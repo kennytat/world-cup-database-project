@@ -1,6 +1,29 @@
-#! /bin/bash
+#!/bin/bash
 
-# using if loop to be able to run tests without affecting original database
+# Create the database
+psql -U postgres -c "DROP DATABASE IF EXISTS worldcup;"
+psql -U postgres -c "CREATE DATABASE worldcup OWNER freecodecamp;"
+
+# Create tables in the new database
+psql -U freecodecamp -d worldcup <<EOF
+DROP TABLE IF EXISTS games;
+DROP TABLE IF EXISTS teams;
+
+CREATE TABLE teams (
+  team_id SERIAL PRIMARY KEY,
+  name VARCHAR NOT NULL UNIQUE
+);
+
+CREATE TABLE games (
+  game_id SERIAL PRIMARY KEY,
+  year INT NOT NULL,
+  round VARCHAR NOT NULL,
+  winner_id INT NOT NULL REFERENCES teams(team_id),
+  opponent_id INT NOT NULL REFERENCES teams(team_id),
+  winner_goals INT NOT NULL,
+  opponent_goals INT NOT NULL
+);
+EOF
 
 if [[ $1 == "test" ]]
 then
